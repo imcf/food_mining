@@ -25,7 +25,13 @@ fd, pdf_file = mkstemp()
 urlretrieve(pdf_url, pdf_file)
 os.close(fd)
 
-# TODO: parse the file here!
+from parsers import parse_usb_menus, DAYS
+menus = parse_usb_menus(pdf_file)
+for menu in menus:
+    print '--------------- ' + menu['title'] + ' ---------------'
+    for day in DAYS[:-1]:
+        print "%s -- %s" % (day, menu['choices'][day])
+    print ''
 
-print pdf_file
-# os.remove(pdf_file)
+# print pdf_file
+os.remove(pdf_file)
