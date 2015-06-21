@@ -1,17 +1,31 @@
+#!/usr/bin/env python
+
+import re
+import os
 from bs4 import BeautifulSoup
-import requests
+from requests import get
+from urllib import urlretrieve
+from tempfile import mkstemp
+from datetime import datetime
 
-url = 'http://www.unispital-basel.ch/das-universitaetsspital/bereiche/personal-betrieb/hotellerie/restauration/centro-centrino/'
-get = requests.get(url)
+WOTY = datetime.utcnow().isocalendar()[1]  # week of the year
 
-soup = BeautifulSoup(get.text)
+base = 'http://www.unispital-basel.ch'
+url = base + '/das-universitaetsspital/bereiche/personal-betrieb/hotellerie/restauration/centro-centrino/'
+response = get(url)
 
-foo = soup(text=re.compile(r'KW 25'))
-foo0 = foo[0]
-anchor = foo0.parent
-anchor.attrs['href']
+soup = BeautifulSoup(response.text)
 
-pdf_url = 'http://www.unispital-basel.ch/fileadmin/unispitalbaselch/Bereiche/Personal_Betrieb/Hotellerie/Centro_Menues/25_Wo_Auswahlbuffet_Mo-Frx.pdf'
+menu_links = soup(text=re.compile(r'KW ' + str(WOTY)))
+# menu_links[0] contains the buffet, menu_links[1] the standard menus:
+pdf_url = base + menu_links[1].parent.attrs['href']
+print pdf_url
 
-pdf = requests.get(pdf_url)
+fd, pdf_file = mkstemp()
+urlretrieve(pdf_url, pdf_file)
+os.close(fd)
 
+# TODO: parse the file here!
+
+print pdf_file
+# os.remove(pdf_file)
