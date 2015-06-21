@@ -3,10 +3,19 @@
 import slate
 import re
 
-with open('27_Wo_Menus_komplett_Meditx.pdf') as f:
-    DOC = slate.PDF(f)
 
 DAYS = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag']
+
+
+def parse_usb_menus(fname):
+    with open(fname) as f:
+        doc = slate.PDF(f)
+    menus = []
+    menus.append(parse_regular(doc[0], 0, 'tages'))
+    menus.append(parse_regular(doc[1], 1, 'vegetarisch'))
+    if len(doc) > 2:
+        menus.append(parse_special(doc[2], 0, 'spezialitaeten'))
+    return menus
 
 
 def parse_regular(text, menu_type, title):
@@ -31,13 +40,3 @@ def parse_special(text, menu_type, title):
         'title' : title,
         'choices' : choices
     }
-
-
-menus = []
-menus.append(parse_regular(DOC[0], 0, 'tages'))
-menus.append(parse_regular(DOC[1], 1, 'vegetarisch'))
-if len(DOC) > 2:
-    menus.append(parse_special(DOC[2], 0, 'spezialitaeten'))
-    
-
-print menus
